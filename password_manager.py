@@ -11,9 +11,9 @@ def load_key():
     file.close()
     return key
 
-key = load_key()
-
 master_pwd = input("What is the master password? ").lower()
+key = load_key() + master_pwd.encode()
+fer = Fernet(key)
 
 def view():
     with open("passwords.txt", "r") as f:
@@ -21,16 +21,17 @@ def view():
             data = line.rstrip()
             if "|" in data:
                 user, password = data.split("|")
-                print("User:", user, "- Password: ", password)
+                print("User:", user, "- Password: ", fer.decrypt(password.encode()).decode())
             else:
                 print("Invalid data format:", data)
+
 
 def add():
     name = input("Account Name: ")
     pwd = input("Password: ")
 
-    with open("passwords.txt","a") as f:
-        f.write(name + "|" + pwd + "\n")
+    with open("passwords.txt", "a") as f:
+        f.write(name + "|" + fer.encrypt(pwd.encode()).decode() + "\n")
 
 
 if master_pwd  == "cat":
